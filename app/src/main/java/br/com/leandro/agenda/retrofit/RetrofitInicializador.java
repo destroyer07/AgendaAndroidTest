@@ -1,5 +1,6 @@
 package br.com.leandro.agenda.retrofit;
 
+import android.content.Context;
 import android.content.res.Resources;
 
 import br.com.leandro.agenda.R;
@@ -14,7 +15,7 @@ public class RetrofitInicializador {
 
     private final Retrofit retrofit;
 
-    public RetrofitInicializador() {
+    public RetrofitInicializador(Context context) {
 
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -22,8 +23,10 @@ public class RetrofitInicializador {
         OkHttpClient.Builder client = new OkHttpClient.Builder();
         client.addInterceptor(interceptor);
 
+        String url = context.getString(R.string.HOST_URL);
+
         retrofit = new Retrofit.Builder()
-                .baseUrl(Resources.getSystem().getString(R.string.HOST_URL))
+                .baseUrl(url)
                 .addConverterFactory(JacksonConverterFactory.create())
                 .client(client.build())
                 .build();

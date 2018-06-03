@@ -16,6 +16,8 @@ public class Aluno implements Serializable {
     private String site;
     private Double nota;
     private String caminhoFoto;
+    private boolean sincronizado;
+    private boolean removido;
 
     public String getId() {
         return id;
@@ -73,9 +75,38 @@ public class Aluno implements Serializable {
         this.caminhoFoto = caminhoFoto;
     }
 
+    public boolean isSincronizado() {
+        return sincronizado;
+    }
+
+    public void setSincronizado(boolean sincronizado) {
+        this.sincronizado = sincronizado;
+    }
+
     @Override
     public String toString() {
         return getId() + " - " + getNome();
+    }
+
+    public void sincroniza() {
+        this.sincronizado = true;
+    }
+
+    public void dessincroniza() {
+        this.sincronizado = false;
+    }
+
+    public boolean isRemovido() {
+        return removido;
+    }
+
+    public void setRemovido(boolean removido) {
+        this.removido = removido;
+    }
+
+    public void remove() {
+        this.removido = true;
+        dessincroniza();
     }
 }
 

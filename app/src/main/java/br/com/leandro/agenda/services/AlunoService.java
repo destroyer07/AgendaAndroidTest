@@ -4,6 +4,7 @@ package br.com.leandro.agenda.services;
 import java.util.List;
 
 import br.com.leandro.agenda.dto.AlunoSync;
+import br.com.leandro.agenda.dto.ObjetoDiff;
 import br.com.leandro.agenda.modelo.Aluno;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -29,5 +30,8 @@ public interface AlunoService {
     Call<Aluno> altera(@Path("id") String id, @Body Aluno aluno);
 
     @GET("alunos/diff")
-    Call<AlunoSync[]> novos(@Header("dataHora") String versao);
+    Call<ObjetoDiff> novos(@Header("lastUpdate") String versao);
+
+    @POST("alunos")
+    Call<List<Aluno>> atualiza(@Body List<Aluno> alunos);
 }

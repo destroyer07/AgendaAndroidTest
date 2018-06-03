@@ -11,8 +11,11 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.IOException;
 import java.util.Map;
 
+import br.com.leandro.agenda.dao.AlunoDAO;
 import br.com.leandro.agenda.dto.AlunoSync;
+import br.com.leandro.agenda.dto.ObjetoDiff;
 import br.com.leandro.agenda.event.AtualizaListaAlunoEvent;
+import br.com.leandro.agenda.sync.AlunoSincronizador;
 
 public class AgendaMessagingService extends FirebaseMessagingService {
     @Override
@@ -28,15 +31,13 @@ public class AgendaMessagingService extends FirebaseMessagingService {
     private void converteDados(Map<String, String> mensagem) {
 
         if (mensagem.containsKey("aluno")) {
-            String json = mensagem.get("aluno");
+            String json = mensagem.toString();
             ObjectMapper mapper = new ObjectMapper();
 
             try {
-                AlunoSync[] syncs = mapper.readValue(json, AlunoSync[].class);
+                ObjetoDiff diff = mapper.readValue(json, ObjetoDiff.class);
 
-                for (AlunoSync sync : syncs) {
-                    sync.atualizaBanco(this);
-                }
+                new AlunoSincronizador(this).sincroniza(diff);
 
                 EventBus eventBus = EventBus.getDefault();
                 eventBus.post(new AtualizaListaAlunoEvent());

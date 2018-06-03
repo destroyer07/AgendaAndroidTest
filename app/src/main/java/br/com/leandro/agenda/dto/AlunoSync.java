@@ -37,9 +37,7 @@ public class AlunoSync {
         this.data = data;
     }
 
-    public void atualizaBanco(Context context) {
-
-        AlunoDAO dao = new AlunoDAO(context);
+    public void atualizaBanco(AlunoDAO dao) {
 
         switch (action) {
             case add:
@@ -56,6 +54,5 @@ public class AlunoSync {
                 break;
         }
 
-        dao.close();
     }
 }

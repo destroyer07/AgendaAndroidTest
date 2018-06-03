@@ -17,7 +17,7 @@ public class AlunoDAO extends SQLiteOpenHelper {
 
 
     public AlunoDAO(Context context) {
-        super(context, "Agenda", null, 3);
+        super(context, "Agenda", null, 5);
     }
 
     @Override
@@ -89,6 +89,15 @@ public class AlunoDAO extends SQLiteOpenHelper {
                             new String[] { geraUUID(), String.valueOf(aluno.getId())}
                     );
                 }
+            case 4:
+                db.execSQL(
+                        "ALTER TABLE Alunos ADD COLUMN sincronizado INT DEFAULT 0"
+                );
+            case 5:
+                db.execSQL(
+                        "ALTER TABLE Alunos ADD COLUMN removido INT DEFAULT 0"
+                );
+
         }
     }
 
@@ -123,11 +132,13 @@ public class AlunoDAO extends SQLiteOpenHelper {
         dados.put("site", aluno.getSite());
         dados.put("nota", aluno.getNota());
         dados.put("caminhoFoto", aluno.getCaminhoFoto());
+        dados.put("sincronizado", aluno.isSincronizado() ? 1 : 0);
+        dados.put("removido", aluno.isRemovido() ? 1 : 0);
         return dados;
     }
 
     public List<Aluno> buscaAlunos() {
-        String sql = "SELECT * FROM Alunos";
+        String sql = "SELECT * FROM Alunos WHERE removido = 0";
         SQLiteDatabase db = getReadableDatabase();
         Cursor c = db.rawQuery(sql, null);
 
@@ -152,6 +163,8 @@ public class AlunoDAO extends SQLiteOpenHelper {
             aluno.setSite(c.getString(c.getColumnIndex("site")));
             aluno.setNota(c.getDouble(c.getColumnIndex("nota")));
             aluno.setCaminhoFoto(c.getString(c.getColumnIndex("caminhoFoto")));
+            aluno.setSincronizado(c.getInt(c.getColumnIndex("sincronizado")) == 1);
+            aluno.setRemovido(c.getInt(c.getColumnIndex("removido")) == 1);
 
             alunos.add(aluno);
         }
@@ -162,7 +175,13 @@ public class AlunoDAO extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
 
         String[] params = { aluno.getId().toString() };
-        db.delete("Alunos", "id = ?", params);
+
+        if (aluno.isRemovido()) {
+            db.delete("Alunos", "id = ?", params);
+        } else {
+            aluno.remove();
+            altera(aluno);
+        }
     }
 
     public void altera(Aluno aluno) {
@@ -186,6 +205,9 @@ public class AlunoDAO extends SQLiteOpenHelper {
 
     public void sincroniza(List<Aluno> alunos) {
         for (Aluno aluno : alunos) {
+
+            aluno.sincroniza();
+
             if (existe(aluno)) {
                 altera(aluno);
             } else {
@@ -201,5 +223,13 @@ public class AlunoDAO extends SQLiteOpenHelper {
                 new String[]{aluno.getId()}
         );
         return cursor.getCount() > 0;
+    }
+
+    public List<Aluno> listaNaoSincronizados() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT * FROM Alunos WHERE sincronizado = 0", null);
+
+        return populaAlunos(cursor);
     }
 }

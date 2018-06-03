@@ -24,7 +24,7 @@ public class AgendaInstanceIdService extends FirebaseInstanceIdService {
     }
 
     private void enviaTokenParaServidor(final String token) {
-        Call<Void> call = new RetrofitInicializador().getDispositivoService().enviaToken(token);
+        Call<Void> call = new RetrofitInicializador(this).getDispositivoService().enviaToken(token);
 
         call.enqueue(new Callback<Void>() {
             @Override

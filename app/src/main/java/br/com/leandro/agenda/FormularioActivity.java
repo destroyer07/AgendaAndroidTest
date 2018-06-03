@@ -97,6 +97,8 @@ public class FormularioActivity extends AppCompatActivity {
 
                 Aluno aluno = helper.pegaAluno();
 
+                aluno.dessincroniza();
+
                 if (aluno.getId() != null) {
                     alteraAluno(aluno);
                 } else {
@@ -116,7 +118,7 @@ public class FormularioActivity extends AppCompatActivity {
         dao.insere(aluno);
         dao.close();
 
-        Call<Void> call = new RetrofitInicializador().getAlunoService().insere(aluno);
+        Call<Void> call = new RetrofitInicializador(this).getAlunoService().insere(aluno);
 
         call.enqueue(new Callback<Void>() {
             @Override
@@ -136,7 +138,7 @@ public class FormularioActivity extends AppCompatActivity {
         dao.altera(aluno);
         dao.close();
 
-        Call<Aluno> call = new RetrofitInicializador().getAlunoService().altera(aluno.getId(), aluno);
+        Call<Aluno> call = new RetrofitInicializador(this).getAlunoService().altera(aluno.getId(), aluno);
 
         call.enqueue(new Callback<Aluno>() {
             @Override

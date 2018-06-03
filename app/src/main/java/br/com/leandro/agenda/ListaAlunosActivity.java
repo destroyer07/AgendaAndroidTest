@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -28,11 +27,7 @@ import br.com.leandro.agenda.dao.AlunoDAO;
 import br.com.leandro.agenda.event.AtualizaListaAlunoEvent;
 import br.com.leandro.agenda.helper.StringHelper;
 import br.com.leandro.agenda.modelo.Aluno;
-import br.com.leandro.agenda.retrofit.RetrofitInicializador;
 import br.com.leandro.agenda.sync.AlunoSincronizador;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ListaAlunosActivity extends AppCompatActivity {
 
@@ -216,25 +211,16 @@ public class ListaAlunosActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
 
+                AlunoDAO dao = new AlunoDAO(ListaAlunosActivity.this);
+                dao.deleta(aluno);
+                dao.close();
+                carregaLista();
 
-                Call<Aluno> call = new RetrofitInicializador().getAlunoService().remove(aluno.getId());
-                call.enqueue(new Callback<Aluno>() {
-                    @Override
-                    public void onResponse(Call<Aluno> call, Response<Aluno> response) {
-                        AlunoDAO dao = new AlunoDAO(ListaAlunosActivity.this);
-                        dao.deleta(aluno);
-                        dao.close();
-                        carregaLista();
-                    }
-
-                    @Override
-                    public void onFailure(Call<Aluno> call, Throwable t) {
-                        Toast.makeText(ListaAlunosActivity.this, "Não foi possível remover o aluno", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                alunoSincronizador.remove(aluno);
 
                 return false;
             }
         });
     }
+
 }
